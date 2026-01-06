@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>👑 Carta de Reyes 👑</title>
+  <style>
+  :root {
+  --bg: #f3e6c6;        /* fondo arena */
+  --panel: #fff4da;     /* tarjeta clara */
+  --text: #5a3b1f;      /* texto marrón suave */
+  --accent: #d9a441;   /* botones dorado */
+  --accent2: #c98b2b;  /* botones secundarios */
+  --gold: #b87a1b;     /* detalles */
+}
+
+    * { box-sizing: border-box; }
+    body {
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh; display:flex; align-items:center; justify-content:center;
+      padding: 16px;
+    }
+    .app { width: min(920px, 100%); }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    h1, h2 { margin: 0 0 10px 0; }
+    p { margin: 8px 0; color: var(--text); line-height: 1.35; }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    button {
+      border:0; border-radius: 14px; padding: 12px 14px;
+      color:white; font-weight: 700; cursor:pointer; font-size: 15px;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .b1 { background: var(--accent); }
+    .b2 { background: var(--accent2); }
+    .b3 { background: var(--gold); }
+    .b4 { background: #586e75; }
+    .tiny { font-size: 13px; opacity: 0.85; }
+    .screen { display:none; }
+    .screen.active { display:block; }
+
+    /* “lucecitas” */
+    .titleGlow {
+      font-size: 22px;
+      animation: glow 1.2s infinite alternate;
+    }
+    @keyframes glow {
+      0% { text-shadow: 0 0 0px rgba(255,255,255,0.0); }
+      100% { text-shadow: 0 0 14px rgba(255,255,255,0.35); }
+    }
+
+    /* juego */
+    .gameWrap { display:grid; gap:10px; }
+    canvas {
+      width: 100%; height: 260px; /* escalado visual */
+      background: linear-gradient(#0b1d3a, #1c2f5a); /* noche azul */;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      touch-action: manipulation;
+    }
+    .hud { display:flex; justify-content:space-between; gap:10px; flex-wrap: wrap; }
+    .pill {
+      padding: 8px 10px; border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-weight: 700;
+    }
+    img.pesebre {
+      max-width: 100%;
+      height: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      display:block;
+      margin: 12px auto;
+    }
+    .center { text-align:center; }
+.signature {
+  position: fixed;
+  bottom: 10px;
+  right: 12px;
+  font-size: 13px;
+  opacity: 0.75;
+  color: var(--text);
+  font-style: italic;
+  pointer-events: none;
+}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+
+      <!-- SCREEN: HOME -->
+      <section id="sHome" class="screen active">
+        <h1 class="titleGlow">👑 Feliz Día de Reyes 👑</h1>
+        <p class="tiny">Tip: Toca el boton música y despúes Apretar aquí 👑</p>
+
+        <div class="row">
+          <button class="b1" id="btnOpen">Abrir carta 👑</button>
+          <button class="b4" id="btnMusic">▶️ Música</button>
+        </div>
+
+        <p id="homeMsg"></p>
+        <p id="homeFrom"></p>
+
+        <div class="row" id="homeActions" style="display:none;">
+          <button class="b2" id="btnNext">Juego aquí 👑</button>
+          <button class="b3" id="btnPesebre">Ver Pesebre ✨</button>
+        </div>
+
+        <p class="tiny" style="margin-top:14px;">
+          Nota: Apretar Música y después Apretar aquí.
+        </p>
+      </section>
+
+      <!-- SCREEN: NEXT -->
+      <section id="sNext" class="screen">
+        <h2>🌟 Carta 🌟</h2>
+        <p class="center">
+          Que este día de reyes sea<br>
+          lleno de amor, risas y abrazos. ❤️<br><br>
+          ¡Cariños y abrazos!<br>
+          Familia Mulder González<br>
+          (Apretar juego para ver pesebre)
+        </p>
+        <div class="row">
+          <button class="b4" data-go="sHome">Volver</button>
+          <button class="b2" data-go="sContext">Ir al juego 🎮</button>
+        </div>
+      </section>
+
+      <!-- SCREEN: CONTEXT -->
+      <section id="sContext" class="screen">
+        <h2>✨ El camino siguiendo la estrella ✨</h2>
+        <p class="center">
+          Una estrella anunciaba.<br>
+          el nacimiento de un Rey,<br><br>
+          Unos reyes magos la vieron aparecer<br><br>
+          «La estrella que habían visto en Oriente iba delante de ellos».<br><br>
+          Los reyes magos partieron siguiendo la estrella,<br><br>
+          ¡Ayúdales a avanzar saltando a tiempo! 🎮
+        </p>
+        <div class="row">
+          <button class="b4" data-go="sHome">Volver</button>
+          <button class="b2" id="btnStartGame">Comenzar juego 🎮</button>
+        </div>
+      </section>
+
+      <!-- SCREEN: GAME -->
+      <section id="sGame" class="screen">
+        <div class="hud">
+          <div class="pill" id="hudScore">Puntos: 0</div>
+          <div class="pill" id="hudBest">Mejor: 0</div>
+          <div class="pill">Tap / Espacio = Saltar</div>
+        </div>
+
+        <div class="gameWrap">
+          <canvas id="game" width="900" height="260"></canvas>
+          <div class="row">
+            <button class="b4" data-go="sHome" id="btnExitGame">Salir</button>
+            <button class="b2" id="btnRetry" style="display:none;">🔄 Reintentar</button>
+            <button class="b3" id="btnGoPesebre" style="display:none;">✨ Ver Pesebre</button>
+          </div>
+          <p class="tiny center" id="gameHint">Toca la pantalla para saltar 👑👑👑</p>
+        </div>
+      </section>
+
+      <!-- SCREEN: PESEBRE -->
+      <section id="sPesebre" class="screen">
+        <h2 class="center">✨ El nacimiento de Jesús ✨</h2>
+        <img class="pesebre" src="pesebre.png" alt="Pesebre">
+        <p class="center tiny">Bendecido nacimiento de Jesús y Día de Reyes</p>
+        <div class="row">
+          <button class="b4" data-go="sHome" id="btnBackFromPesebre">Volver</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- AUDIO (usa tus archivos locales) -->
+  <audio id="audioMain" src="burrito.mp3" preload="auto" loop></audio>
+  <audio id="audioPesebre" src="nochedepaz.mp3" preload="auto" loop></audio>
+
+  <script>
+    // --- simple router ---
+    const screens = ["sHome","sNext","sContext","sGame","sPesebre"];
+    const $ = (id) => document.getElementById(id);
+
+    function go(id) {
+      screens.forEach(s => $(s).classList.remove("active"));
+      $(id).classList.add("active");
+    }
+    document.querySelectorAll("[data-go]").forEach(btn => {
+      btn.addEventListener("click", () => go(btn.dataset.go));
+    });
+
+    // --- card open flow ---
+    const homeMsg = $("homeMsg");
+    const homeFrom = $("homeFrom");
+    const homeActions = $("homeActions");
+
+    $("btnOpen").addEventListener("click", () => {
+      homeMsg.textContent = "Feliz nacimiento de Jesús y día de Reyes, con mucha felicidad, paz y mucho amor ✨";
+      homeFrom.textContent = "De: Familia Mulder González ❤️";
+      homeActions.style.display = "flex";
+    });
+
+    $("btnNext").addEventListener("click", () => go("sNext"));
+    $("btnPesebre").addEventListener("click", () => {
+      switchToPesebreMusic();
+      go("sPesebre");
+    });
+
+    // --- music control (mobile-friendly: user gesture) ---
+    const audioMain = $("audioMain");
+    const audioPesebre = $("audioPesebre");
+    let musicOn = false;
+    let current = "main"; // "main" | "pesebre"
+
+    function stopAll() {
+      audioMain.pause(); audioMain.currentTime = 0;
+      audioPesebre.pause(); audioPesebre.currentTime = 0;
+    }
+    function playMain() {
+      current = "main";
+      audioPesebre.pause();
+      audioMain.play().catch(()=>{});
+    }
+    function playPesebre() {
+      current = "pesebre";
+      audioMain.pause();
+      audioPesebre.play().catch(()=>{});
+    }
+    function switchToPesebreMusic() {
+      if (!musicOn) return;
+      playPesebre();
+    }
+    function switchToMainMusic() {
+      if (!musicOn) return;
+      playMain();
+    }
+
+    $("btnMusic").addEventListener("click", async () => {
+      musicOn = !musicOn;
+      $("btnMusic").textContent = musicOn ? "⏸️ Música" : "▶️ Música";
+      if (!musicOn) { stopAll(); return; }
+      // reproduce según pantalla
+      if ($("sPesebre").classList.contains("active")) playPesebre();
+      else playMain();
+    });
+
+    $("btnBackFromPesebre").addEventListener("click", () => {
+      switchToMainMusic();
+      go("sHome");
+    });
+
+    // cuando vas al juego/contexto/next/home, música principal
+    ["sHome","sNext","sContext","sGame"].forEach(id=>{
+      const obs = new MutationObserver(()=>{
+        if ($(id).classList.contains("active")) switchToMainMusic();
+      });
+      obs.observe($(id), { attributes:true, attributeFilter:["class"] });
+    });
+
+    // --- game (tap to jump) ---
+    const canvas = $("game");
+    const ctx = canvas.getContext("2d");
+
+    const hudScore = $("hudScore");
+    const hudBest = $("hudBest");
+    let best = 0;
+    
+    let starPulse = 0;
+
+
+    // game state
+    let running = false;
+    let gameOver = false;
+    let score = 0;
+
+    // player
+    const player = { x: 90, y: 0, w: 40, h: 40, vy: 0, onGround: true };
+    // obstacle
+    const obs = { x: 900, y: 0, w: 40, h: 40, speed: 6 };
+
+    const groundY = 205;
+
+    function resetGame() {
+      score = 0;
+      gameOver = false;
+      player.y = groundY - player.h;
+      player.vy = 0;
+      player.onGround = true;
+      obs.x = 900;
+      obs.speed = 6;
+      hudScore.textContent = `Puntos: ${score}`;
+      $("btnRetry").style.display = "none";
+      $("btnGoPesebre").style.display = "none";
+      $("gameHint").textContent = "Toca la pantalla para saltar 👑👑👑";
+    }
+
+    function jump() {
+      if (!running) return;
+      if (gameOver) return;
+      if (player.onGround) {
+        player.vy = -18;
+        player.onGround = false;
+      }
+    }
+
+    function collide(a, b) {
+      return (a.x < b.x + b.w &&
+              a.x + a.w > b.x &&
+              a.y < b.y + b.h &&
+              a.y + a.h > b.y);
+    }
+
+
+function drawStar() {
+  starPulse += 0.05; // velocidad del parpadeo
+
+  const size = 28 + Math.sin(starPulse) * 6; // tamaño que sube y baja
+  ctx.font = `${size}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+  ctx.fillText("⭐", canvas.width - 40, 30);
+}
+
+
+    function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      // ground
+      ctx.strokeStyle = "rgba(255,255,255,0.8)";
+      ctx.beginPath();
+      ctx.moveTo(0, groundY);
+      ctx.lineTo(canvas.width, groundY);
+      ctx.stroke();
+
+      // player (emoji)
+      ctx.font = "32px system-ui, Apple Color Emoji, Segoe UI Emoji";
+      ctx.fillText("🤴🐫", player.x - 10, player.y + 32);
+
+      // obstacle (bush)
+      ctx.font = "28px system-ui, Apple Color Emoji, Segoe UI Emoji";
+      ctx.fillText("🌵", obs.x - 8, obs.y + 16);
+      
+      // ⭐ estrella
+      drawStar();
+
+
+      // overlay game over
+      if (gameOver) {
+        ctx.fillStyle = "rgba(0,0,0,0.35)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "white";
+        ctx.font = "bold 28px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("👑 GAME OVER 🐫", canvas.width/2, 110);
+        ctx.font = "bold 20px system-ui";
+        ctx.fillText(`Puntos: ${score}`, canvas.width/2, 145);
+        ctx.textAlign = "start";
+      }
+    }
+
+    function tick() {
+      if (!running) return;
+
+      // physics
+      player.vy += 0.9; // gravity
+      player.y += player.vy;
+
+      if (player.y >= groundY - player.h) {
+        player.y = groundY - player.h;
+        player.vy = 0;
+        player.onGround = true;
+      }
+
+      // obstacle move
+      obs.x -= obs.speed;
+      if (obs.x + obs.w < 0) {
+        obs.x = canvas.width + 60;
+        score += 1;
+        if (score > best) best = score;
+        hudScore.textContent = `Puntos: ${score}`;
+        hudBest.textContent = `Mejor: ${best}`;
+        // tiny difficulty ramp
+        if (score % 5 === 0) obs.speed += 0.6;
+      }
+
+      // collision box (rough)
+      const pBox = { x: player.x, y: player.y, w: 55, h: 40 };
+      const oBox = { x: obs.x, y: obs.y, w: 55, h: 35 };
+
+      if (!gameOver && collide(pBox, oBox)) {
+        gameOver = true;
+        $("btnRetry").style.display = "inline-block";
+        $("btnGoPesebre").style.display = "inline-block";
+        $("gameHint").textContent = "Toca Reintentar o Ver Pesebre ✨";
+      }
+
+      draw();
+      requestAnimationFrame(tick);
+    }
+
+    function startGame() {
+      go("sGame");
+      resetGame();
+
+      // init obstacle y
+      obs.y = groundY - 35;
+      running = true;
+      draw();
+      requestAnimationFrame(tick);
+    }
+
+    $("btnStartGame").addEventListener("click", startGame);
+    $("btnExitGame").addEventListener("click", () => { running = false; go("sHome"); });
+    $("btnRetry").addEventListener("click", () => { resetGame(); });
+    $("btnGoPesebre").addEventListener("click", () => {
+      running = false;
+      switchToPesebreMusic();
+      go("sPesebre");
+    });
+
+    // tap to jump (mobile) + click
+    canvas.addEventListener("pointerdown", (e) => { e.preventDefault(); jump(); });
+    // keyboard (desktop)
+    window.addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); jump(); } });
+
+    // start positions
+    resetGame();
+    hudBest.textContent = `Mejor: ${best}`;
+    </script>
+
+  <!-- Firma -->
+  <div class="signature">Amari 🦋✨</div>
+
+</body>
+
+</html>
