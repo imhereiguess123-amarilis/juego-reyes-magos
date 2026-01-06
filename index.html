@@ -202,22 +202,32 @@
       btn.addEventListener("click", () => go(btn.dataset.go));
     });
 
-    // --- card open flow ---
-    const homeMsg = $("homeMsg");
-    const homeFrom = $("homeFrom");
-    const homeActions = $("homeActions");
+// --- card open flow ---
+const homeMsg = $("homeMsg");
+const homeFrom = $("homeFrom");
+const homeActions = $("homeActions");
 
-    $("btnOpen").addEventListener("click", () => {
-      homeMsg.textContent = "Feliz nacimiento de Jesús y día de Reyes, con mucha felicidad, paz y mucho amor ✨";
-      homeFrom.textContent = "De: Familia Mulder González ❤️";
-      homeActions.style.display = "flex";
-    });
+$("btnOpen").addEventListener("click", () => {
+  homeMsg.textContent =
+    "Feliz nacimiento de Jesús y día de Reyes, con mucha felicidad, paz y mucho amor ✨";
+  homeFrom.textContent = "De: Familia Mulder González ❤️";
+  homeActions.style.display = "flex";
+
+  // 🎵 iniciar música automáticamente tras el primer click
+  if (!musicOn) {
+    musicOn = true;
+    $("btnMusic").textContent = "⏸️ Música";
+    playMain(); // o playPesebre() si quieres esa música aquí
+  }
+});
+
 
     $("btnNext").addEventListener("click", () => go("sNext"));
     $("btnPesebre").addEventListener("click", () => {
       switchToPesebreMusic();
       go("sPesebre");
     });
+
 
     // --- music control (mobile-friendly: user gesture) ---
     const audioMain = $("audioMain");
@@ -373,7 +383,7 @@ function drawStar() {
       if (!running) return;
 
       // physics
-      player.vy += 0.9; // gravity
+      player.vy += 0.70; // gravity
       player.y += player.vy;
 
       if (player.y >= groundY - player.h) {
